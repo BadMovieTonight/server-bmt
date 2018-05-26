@@ -1,4 +1,4 @@
-# PROJECT NAME HERE
+# Bad Movie Tonight Server
 **Version**: 0.0.0
 
 ## Authors
