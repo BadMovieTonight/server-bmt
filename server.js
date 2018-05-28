@@ -28,7 +28,6 @@ app.get('/login/:username', (req,res) => {
 });
 
 app.put('/users/update', (req, res) => {
-  console.log(req.body);
   let SQL = 'UPDATE users SET username = $1, password = $2, preferences = $3 WHERE id = $4;';
   let values = [
     req.body.username,
@@ -42,6 +41,9 @@ app.put('/users/update', (req, res) => {
 });
 
 //Endpoint for adding a user
+app.post('/users', (req, res) => {
+  let SQL = '';
+});
 
 //Endpoint for removing a user
 
