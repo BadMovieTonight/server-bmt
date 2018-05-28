@@ -5,6 +5,7 @@ const cors = require('cors');
 const pg = require('pg');
 const superagent = require('superagent');
 
+const TMDB_API_URL = 'https://api.themoviedb.org/3';
 const app = express();
 const PORT = process.env.PORT || 3000;
 // const constring = 'postgres://localhost:5432';
@@ -18,6 +19,28 @@ app.use(cors());
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(express.static('/'));
+
+// Initializes default page with a list of movies
+app.get('/homepage', (req, res) => {
+  console.log('on server');
+  superagent.get(`${TMDB_API_URL}/discover/movie`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      sort_by: 'vote_average.asc',
+      'vote_count.gte': 25,
+      'primary_release_date.gte': '1980-01-01',
+      'primary_release_date.lte': '2018-06-01',
+      with_original_language: 'en',
+      adult: false,
+    })
+    .then(response => {
+      console.log('in superagent');
+      res.send(response.body);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 
 app.get('/login/:username', (req,res) => {
   let SQL = 'SELECT * FROM users WHERE username = $1;';
@@ -45,53 +68,7 @@ app.post('/users', (req, res) => {
   let SQL = '';
 });
 
-//Endpoint for removing a user
-
+// Default route for anything not defined
 app.get('*', (req, res) => res.status(403).send('This route does not exist'));
-
-const TMDB_API_URL = 'https://api.themoviedb.org/3';
-
-app.use(cors());
-
-app.get('/homepage', (req, res) => {
-  console.log('on server');
-  superagent.get(`${TMDB_API_URL}/discover/movie`)
-    .query({
-      api_key: process.env.TMDB_TOKEN,
-      sort_by: 'vote_average.asc',
-      'vote_count.gte': 25,
-      'primary_release_date.gte': '1980-01-01',
-      'primary_release_date.lte': '2018-06-01',
-      with_original_language: 'en',
-      adult: false,
-    })
-    .then(response => {
-      console.log('in superagent');
-      res.send(response.body);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
-// Legacy superagent request - saving for testing purposes
-
-// superagent.get(`${TMDB_API_URL}/discover/movie`)
-//   .query({
-//     api_key: process.env.TMDB_TOKEN,
-//     sort_by: 'vote_average.asc',
-//     'vote_count.gte': 25,
-//     'primary_release_date.gte': '1980-01-01',
-//     'primary_release_date.lte': '2018-06-01',
-//     with_original_language: 'en',
-//     adult: false,
-//   })
-//   .then(res => {
-//     console.log('in superagent');
-//     // console.log(res.body);
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
 
 app.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
