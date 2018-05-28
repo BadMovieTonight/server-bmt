@@ -27,7 +27,6 @@ app.get('/login/:username', (req,res) => {
     .catch(console.error);
 });
 
-//Endpoint for updating a user
 app.put('/users/update', (req, res) => {
   console.log(req.body);
   let SQL = 'UPDATE users SET username = $1, password = $2, preferences = $3 WHERE id = $4;';
