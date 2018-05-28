@@ -1,0 +1,32 @@
+{
+  "name": "server-bmt",
+  "version": "1.0.0",
+  "description": "backend for badmovietonight",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BadMovieTonight/server-bmt.git"
+  },
+  "keywords": [
+    "node",
+    "postgres",
+    "sql",
+    "express"
+  ],
+  "author": "Team BMT",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BadMovieTonight/server-bmt/issues"
+  },
+  "homepage": "https://github.com/BadMovieTonight/server-bmt#readme",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "pg": "^7.4.3",
+    "superagent": "^3.8.3"
+  }
+}
