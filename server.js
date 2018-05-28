@@ -10,13 +10,13 @@ const PORT = process.env.PORT || 3000;
 const constring = 'postgres://localhost:5432';
 const client = new pg.Client(process.env.DATABASE_URL || constring);
 
-const API_URL = 'https://api.themoviedb.org/3';
+const TMDB_API_URL = 'https://api.themoviedb.org/3';
 
 app.use(cors());
 
 app.get('/homepage', (req, res) => {
   console.log('on server');
-  superagent.get(`${API_URL}/discover/movie`)
+  superagent.get(`${TMDB_API_URL}/discover/movie`)
     .query({
       api_key: process.env.TMDB_TOKEN,
       sort_by: 'vote_average.asc',
@@ -37,7 +37,7 @@ app.get('/homepage', (req, res) => {
 
 // Legacy superagent request - saving for testing purposes
 
-// superagent.get(`${API_URL}/discover/movie`)
+// superagent.get(`${TMDB_API_URL}/discover/movie`)
 //   .query({
 //     api_key: process.env.TMDB_TOKEN,
 //     sort_by: 'vote_average.asc',
