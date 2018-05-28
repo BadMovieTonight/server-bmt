@@ -20,15 +20,32 @@ app.use(express.json());
 app.use(express.static('/'));
 
 app.get('/login/:username', (req,res) => {
-  let SQL = 'SELECT username, password, preferences FROM users WHERE username = $1;';
+  let SQL = 'SELECT * FROM users WHERE username = $1;';
   let values = [req.params.username];
   client.query(SQL, values)
     .then(result => res.send(result.rows[0]))
     .catch(console.error);
 });
 
+//Endpoint for updating a user
+app.put('/users/update', (req, res) => {
+  console.log(req.body);
+  let SQL = 'UPDATE users SET username = $1, password = $2, preferences = $3 WHERE id = $4;';
+  let values = [
+    req.body.username,
+    req.body.password,
+    req.body.preferences,
+    req.body.id
+  ];
+  client.query(SQL, values)
+    .then(() => res.sendStatus(204))
+    .catch(console.error);
+});
+
+//Endpoint for adding a user
+
+//Endpoint for removing a user
+
 app.get('*', (req, res) => res.status(403).send('This route does not exist'));
-
-
 
 app.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
