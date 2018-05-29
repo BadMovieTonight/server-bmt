@@ -40,6 +40,25 @@ app.get('/homepage', (req, res) => {
     });
 });
 
+app.get('/bmt/movies', (req, res) => {
+  console.log('on server /bmt/movies');
+  superagent.get(`${TMDB_API_URL}/search/movie`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      query: req.query.searchFor,
+      page: req.query.page,
+      language: 'en-US',
+      adult: false,
+    })
+    .then(response => {
+      console.log('in superagent');
+      res.send(response.body);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 app.get('/bmt/search', (req, res) => {
   console.log('on server for bmt/search');
   console.log('req.query',req.query);
