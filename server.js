@@ -80,7 +80,7 @@ app.get('/bmt/search', (req, res) => {
 });
 
 app.get('/login/:username', (req,res) => {
-  let SQL = 'SELECT * FROM users WHERE username = $1;';
+  let SQL = 'SELECT username, password, preferences FROM users WHERE username = $1;';
   let values = [req.params.username];
   client.query(SQL, values)
     .then(result => res.send(result.rows[0]))
@@ -88,12 +88,11 @@ app.get('/login/:username', (req,res) => {
 });
 
 app.put('/users/update', (req, res) => {
-  let SQL = 'UPDATE users SET username = $1, password = $2, preferences = $3 WHERE id = $4;';
+  let SQL = 'UPDATE users SET username = $1, password = $2, preferences = $3 WHERE username = $1;';
   let values = [
     req.body.username,
     req.body.password,
     req.body.preferences,
-    req.body.id
   ];
   client.query(SQL, values)
     .then(() => res.sendStatus(204))
@@ -101,8 +100,16 @@ app.put('/users/update', (req, res) => {
 });
 
 //Endpoint for adding a user
-app.post('/users', (req, res) => {
-  let SQL = '';
+app.post('/users/new', (req, res) => {
+  let SQL = 'INSERT INTO users(username, password, preferences) VALUES($1, $2, $3);';
+  let values = [
+    req.body.username,
+    req.body.password,
+    req.body.preferences
+  ];
+  client.query(SQL, values)
+    .then(() => res.sendStatus(204))
+    .catch(console.error);
 });
 
 // Default route for anything not defined
