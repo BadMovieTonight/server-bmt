@@ -42,6 +42,32 @@ app.get('/homepage', (req, res) => {
     });
 });
 
+//search/multi?api_key=c8a693c102e1447f1a989b4d4b65cd8e&language=en-US&query=hanks&page=1&include_adult=false
+
+app.get('/bmt/search', (req, res) => {
+  console.log('on server for bmt/search');
+  console.log('req.query',req.query);
+  superagent.get(`${TMDB_API_URL}/search/multi`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      language: 'en-US',
+      query: req.query.searchFor,
+      sort_by: 'vote_average.asc',
+      // vote_count.gte: 25,
+      // primary_release_date.gte: '1980-01-01',
+      // primary_release_date.lte: '2018-06-01',
+      adult: false
+    })
+    .then(response => {
+      console.log('in superagent');
+      console.log(response.body);
+      res.send(response.body);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 app.get('/login/:username', (req,res) => {
   let SQL = 'SELECT * FROM users WHERE username = $1;';
   let values = [req.params.username];
