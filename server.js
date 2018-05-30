@@ -135,7 +135,6 @@ app.get('/bmt/search', (req, res) => {
 });
 
 app.get('/movies/:actorid', (req, res) => {
-
   superagent.get(`${TMDB_API_URL}/discover/movie`)
     .query({
       api_key: process.env.TMDB_TOKEN,
@@ -155,6 +154,16 @@ app.get('/movies/:actorid', (req, res) => {
     .catch((err) => {
       console.log(err);
     });
+});
+
+app.get('/credits/:movieid', (req, res) => {
+  superagent.get(`${TMDB_API_URL}/movie/${req.params.movieid}/credits`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      language: 'en-US'
+    }).then(response => {
+      res.send(response.body);
+    }).catch(console.error);
 });
 
 app.get('/login/:username', (req,res) => {
