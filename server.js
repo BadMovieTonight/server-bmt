@@ -78,6 +78,22 @@ app.get('/bmt/person', (req, res) => {
     });
 });
 
+app.get('/bmt/person/:id', (req, res) => {
+  console.log('on server /bmt/person', req.params.id);
+  superagent.get(`${TMDB_API_URL}/person/${req.params.id}`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      language: 'en-US',
+    })
+    .then(response => {
+      console.log('in superagent');
+      res.send({results: [response.body]});
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 app.get('/bmt/search', (req, res) => {
   console.log('on server for bmt/search');
   console.log('req.query',req.query);
