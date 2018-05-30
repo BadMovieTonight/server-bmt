@@ -134,6 +134,29 @@ app.get('/bmt/search', (req, res) => {
     });
 });
 
+app.get('/movies/:actorid', (req, res) => {
+
+  superagent.get(`${TMDB_API_URL}/discover/movie`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      language: 'en-US',
+      sort_by: 'vote_average.asc',
+      'vote_average.lte': 5,
+      'vote_count.gte': 25,
+      'primary_release_date.gte': '1980-01-01',
+      'primary_release_date.lte': '2018-06-01',
+      'with_cast': req.params.actorid,
+      adult: false
+    })
+    .then(response => {
+      console.log('in superagent');
+      res.send(response.body);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 app.get('/login/:username', (req,res) => {
   let SQL = 'SELECT username, password, preferences FROM users WHERE username = $1;';
   let values = [req.params.username];
