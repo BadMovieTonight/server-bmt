@@ -40,6 +40,60 @@ app.get('/homepage', (req, res) => {
     });
 });
 
+app.get('/bmt/movies', (req, res) => {
+  console.log('on server /bmt/movies');
+  superagent.get(`${TMDB_API_URL}/search/movie`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      query: req.query.searchFor,
+      page: req.query.page,
+      language: 'en-US',
+      adult: false,
+    })
+    .then(response => {
+      console.log('in superagent');
+      res.send(response.body);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+app.get('/bmt/person', (req, res) => {
+  console.log('on server /bmt/person');
+  superagent.get(`${TMDB_API_URL}/search/person`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      query: req.query.searchFor,
+      page: req.query.page,
+      language: 'en-US',
+      adult: false,
+    })
+    .then(response => {
+      console.log('in superagent');
+      res.send(response.body);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+app.get('/bmt/person/:id', (req, res) => {
+  console.log('on server /bmt/person', req.params.id);
+  superagent.get(`${TMDB_API_URL}/person/${req.params.id}`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      language: 'en-US',
+    })
+    .then(response => {
+      console.log('in superagent');
+      res.send({results: [response.body]});
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 app.get('/bmt/search', (req, res) => {
   console.log('on server for bmt/search');
   console.log('req.query',req.query);
@@ -48,18 +102,19 @@ app.get('/bmt/search', (req, res) => {
       api_key: process.env.TMDB_TOKEN,
       language: 'en-US',
       query: req.query.searchFor,
+      page: req.query.page,
       sort_by: 'vote_average.asc',
       adult: false
     })
     .then(response => {
       console.log('in superagent .then');
       console.log(response.body.page,'of',response.body.total_pages);
-      let responseType = response.body.results[0].media_type
+      let responseType = response.body.results[0].media_type;
       console.log(responseType);
       if (responseType !== 'person') {
         res.send(response.body);
       } else { // response 0 is person so that's the likely target of the search
-        let personId = response.body.results[0].id
+        let personId = response.body.results[0].id;
         console.log('person id',personId);
         //https://api.themoviedb.org/3/person/31?api_key=c8a693c102e1447f1a989b4d4b65cd8e&language=en-US
         superagent.get(`${TMDB_API_URL}/person/${personId}`)
