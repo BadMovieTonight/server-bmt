@@ -21,7 +21,7 @@ app.use(express.static('/'));
 function getNow() {
   let d = new Date();
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDay()}`;
-};
+}
 
 // Initializes default page with a list of movies
 app.get('/homepage/:page', (req, res) => {
@@ -206,9 +206,9 @@ app.post('/users/new', (req, res) => {
 });
 
 app.delete('/users/remove/:username', (req, res) => {
-  let SQL = `DELETE FROM users WHERE username='${req.params.username}';`;
+  let SQL = `DELETE FROM users WHERE username = $1;`;
   let values = [req.params.username];
-  client.query(SQL)//, values)
+  client.query(SQL, values)
     .then(() => res.sendStatus(200))
     .catch(console.error);
 });
