@@ -18,8 +18,13 @@ app.use(express.urlencoded());
 app.use(express.json());
 app.use(express.static('/'));
 
+function getNow() {
+  let d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDay()}`;
+};
+
 // Initializes default page with a list of movies
-app.get('/homepage', (req, res) => {
+app.get('/homepage/:page', (req, res) => {
   console.log('on server');
   superagent.get(`${TMDB_API_URL}/discover/movie`)
     .query({
@@ -27,8 +32,9 @@ app.get('/homepage', (req, res) => {
       sort_by: 'vote_average.asc',
       'vote_count.gte': 25,
       'primary_release_date.gte': '1980-01-01',
-      'primary_release_date.lte': '2018-06-01',
+      'primary_release_date.lte': getNow(),
       with_original_language: 'en',
+      page: req.params.page,
       adult: false,
     })
     .then(response => {
@@ -182,7 +188,7 @@ app.put('/users/update', (req, res) => {
     req.body.preferences,
   ];
   client.query(SQL, values)
-    .then(() => res.sendStatus(204))
+    .then(() => res.sendStatus(202))
     .catch(console.error);
 });
 
@@ -195,7 +201,15 @@ app.post('/users/new', (req, res) => {
     req.body.preferences
   ];
   client.query(SQL, values)
-    .then(() => res.sendStatus(204))
+    .then(() => res.sendStatus(201))
+    .catch(console.error);
+});
+
+app.delete('/users/remove/:username', (req, res) => {
+  let SQL = `DELETE FROM users WHERE username='${req.params.username}';`;
+  let values = [req.params.username];
+  client.query(SQL)//, values)
+    .then(() => res.sendStatus(200))
     .catch(console.error);
 });
 
