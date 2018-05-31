@@ -8,14 +8,14 @@ const superagent = require('superagent');
 const TMDB_API_URL = 'https://api.themoviedb.org/3';
 const app = express();
 const PORT = process.env.PORT || 3000;
-// const constring = 'postgres://localhost:5432
+// const constring = 'postgres://localhost:5432/badmovietonight'
 const client = new pg.Client(process.env.DATABASE_URL);
 
 const defaultSearchPrefs = {
   maxrating: 4,
   minratings: 25,
   mindate: '1970-01-01',
-}
+};
 
 let searchPrefs = {
   maxrating: defaultSearchPrefs.maxrating,
