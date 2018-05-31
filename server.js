@@ -177,8 +177,6 @@ app.get('/login/:username', (req,res) => {
     .then(result => {
       res.send(result.rows[0]);
       // set search prefs to users
-      console.log('login',result.rows[0].username);
-      console.log(result.rows[0].preferences);
       let tempPrefs = JSON.parse(result.rows[0].preferences);
       searchPrefs = {
         maxrating: tempPrefs.maxrating,
