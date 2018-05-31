@@ -188,7 +188,7 @@ app.put('/users/update', (req, res) => {
     req.body.preferences,
   ];
   client.query(SQL, values)
-    .then(() => res.sendStatus(204))
+    .then(() => res.sendStatus(202))
     .catch(console.error);
 });
 
@@ -201,7 +201,15 @@ app.post('/users/new', (req, res) => {
     req.body.preferences
   ];
   client.query(SQL, values)
-    .then(() => res.sendStatus(204))
+    .then(() => res.sendStatus(201))
+    .catch(console.error);
+});
+
+app.delete('/users/remove/:username', (req, res) => {
+  let SQL = `DELETE FROM users WHERE username='${req.params.username}';`;
+  let values = [req.params.username];
+  client.query(SQL)//, values)
+    .then(() => res.sendStatus(200))
     .catch(console.error);
 });
 
