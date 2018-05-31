@@ -8,8 +8,22 @@ const superagent = require('superagent');
 const TMDB_API_URL = 'https://api.themoviedb.org/3';
 const app = express();
 const PORT = process.env.PORT || 3000;
-// const constring = 'postgres://localhost:5432
+// const constring = 'postgres://localhost:5432/badmovietonight'
 const client = new pg.Client(process.env.DATABASE_URL);
+
+const defaultSearchPrefs = {
+  maxrating: 4,
+  minratings: 25,
+  mindate: '1970-01-01',
+};
+
+let searchPrefs = {
+  maxrating: defaultSearchPrefs.maxrating,
+  minratings: defaultSearchPrefs.minratings,
+  mindate: defaultSearchPrefs.mindate
+};
+console.log('searchPrefs set to default');
+
 client.connect();
 client.on('error', err => console.log(err));
 
@@ -18,21 +32,26 @@ app.use(express.urlencoded());
 app.use(express.json());
 app.use(express.static('/'));
 
+function getNow() {
+  let d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDay()}`;
+}
+
 // Initializes default page with a list of movies
-app.get('/homepage', (req, res) => {
-  console.log('on server');
+app.get('/homepage/:page', (req, res) => {
   superagent.get(`${TMDB_API_URL}/discover/movie`)
     .query({
       api_key: process.env.TMDB_TOKEN,
       sort_by: 'vote_average.asc',
-      'vote_count.gte': 25,
-      'primary_release_date.gte': '1980-01-01',
-      'primary_release_date.lte': '2018-06-01',
+      'vote_average.lte': parseInt(searchPrefs.maxrating),
+      'vote_count.gte': parseInt(searchPrefs.minratings),
+      'primary_release_date.gte': searchPrefs.mindate,
+      'primary_release_date.lte': getNow(),
       with_original_language: 'en',
+      page: req.params.page,
       adult: false,
     })
     .then(response => {
-      console.log('in superagent');
       res.send(response.body);
     })
     .catch((err) => {
@@ -41,7 +60,6 @@ app.get('/homepage', (req, res) => {
 });
 
 app.get('/bmt/movies', (req, res) => {
-  console.log('on server /bmt/movies');
   superagent.get(`${TMDB_API_URL}/search/movie`)
     .query({
       api_key: process.env.TMDB_TOKEN,
@@ -51,7 +69,6 @@ app.get('/bmt/movies', (req, res) => {
       adult: false,
     })
     .then(response => {
-      console.log('in superagent');
       res.send(response.body);
     })
     .catch((err) => {
@@ -60,7 +77,6 @@ app.get('/bmt/movies', (req, res) => {
 });
 
 app.get('/bmt/person', (req, res) => {
-  console.log('on server /bmt/person');
   superagent.get(`${TMDB_API_URL}/search/person`)
     .query({
       api_key: process.env.TMDB_TOKEN,
@@ -70,7 +86,6 @@ app.get('/bmt/person', (req, res) => {
       adult: false,
     })
     .then(response => {
-      console.log('in superagent');
       res.send(response.body);
     })
     .catch((err) => {
@@ -79,14 +94,12 @@ app.get('/bmt/person', (req, res) => {
 });
 
 app.get('/bmt/person/:id', (req, res) => {
-  console.log('on server /bmt/person', req.params.id);
   superagent.get(`${TMDB_API_URL}/person/${req.params.id}`)
     .query({
       api_key: process.env.TMDB_TOKEN,
       language: 'en-US',
     })
     .then(response => {
-      console.log('in superagent');
       res.send({results: [response.body]});
     })
     .catch((err) => {
@@ -95,8 +108,6 @@ app.get('/bmt/person/:id', (req, res) => {
 });
 
 app.get('/bmt/search', (req, res) => {
-  console.log('on server for bmt/search');
-  console.log('req.query',req.query);
   superagent.get(`${TMDB_API_URL}/search/multi`)
     .query({
       api_key: process.env.TMDB_TOKEN,
@@ -107,16 +118,11 @@ app.get('/bmt/search', (req, res) => {
       adult: false
     })
     .then(response => {
-      console.log('in superagent .then');
-      console.log(response.body.page,'of',response.body.total_pages);
       let responseType = response.body.results[0].media_type;
-      console.log(responseType);
       if (responseType !== 'person') {
         res.send(response.body);
       } else { // response 0 is person so that's the likely target of the search
         let personId = response.body.results[0].id;
-        console.log('person id',personId);
-        //https://api.themoviedb.org/3/person/31?api_key=c8a693c102e1447f1a989b4d4b65cd8e&language=en-US
         superagent.get(`${TMDB_API_URL}/person/${personId}`)
           .query({
             api_key: process.env.TMDB_TOKEN,
@@ -124,7 +130,6 @@ app.get('/bmt/search', (req, res) => {
           })
           .then(response => {
             response.body.media_type = 'person'; // fake it into a person
-            console.log('after get person details',response.body);
             res.send({results: [response.body]});
           });
       }
@@ -140,15 +145,14 @@ app.get('/movies/:actorid', (req, res) => {
       api_key: process.env.TMDB_TOKEN,
       language: 'en-US',
       sort_by: 'vote_average.asc',
-      'vote_average.lte': 5,
-      'vote_count.gte': 25,
-      'primary_release_date.gte': '1980-01-01',
-      'primary_release_date.lte': '2018-06-01',
+      'vote_average.lte': parseInt(searchPrefs.maxrating),
+      'vote_count.gte': parseInt(searchPrefs.minratings),
+      'primary_release_date.gte': searchPrefs.mindate,
+      'primary_release_date.lte': getNow(),
       'with_cast': req.params.actorid,
       adult: false
     })
     .then(response => {
-      console.log('in superagent');
       res.send(response.body);
     })
     .catch((err) => {
@@ -170,8 +174,27 @@ app.get('/login/:username', (req,res) => {
   let SQL = 'SELECT username, password, preferences FROM users WHERE username = $1;';
   let values = [req.params.username];
   client.query(SQL, values)
-    .then(result => res.send(result.rows[0]))
+    .then(result => {
+      res.send(result.rows[0]);
+      // set search prefs to users
+      let tempPrefs = JSON.parse(result.rows[0].preferences);
+      searchPrefs = {
+        maxrating: tempPrefs.maxrating,
+        minratings: tempPrefs.minratings,
+        mindate: tempPrefs.mindate
+      };
+      console.log(req.params.username,'logged in. preferences set.');
+    })
     .catch(console.error);
+});
+
+app.get('/logout', (req, res) => {
+  searchPrefs = {
+    maxrating: defaultSearchPrefs.maxrating,
+    minratings: defaultSearchPrefs.minratings,
+    mindate: defaultSearchPrefs.mindate
+  };
+  console.log('logged out. prefs reset to default.');
 });
 
 app.put('/users/update', (req, res) => {
@@ -181,8 +204,17 @@ app.put('/users/update', (req, res) => {
     req.body.password,
     req.body.preferences,
   ];
+  let tempPrefs = JSON.parse(req.body.preferences);
+  searchPrefs = {
+    maxrating: tempPrefs.maxrating,
+    minratings: tempPrefs.minratings,
+    mindate: tempPrefs.mindate
+  };
   client.query(SQL, values)
-    .then(() => res.sendStatus(204))
+    .then((result) => {
+      console.log(req.body.username,'updated. preferences set.');
+      res.sendStatus(202);
+    })
     .catch(console.error);
 });
 
@@ -194,8 +226,24 @@ app.post('/users/new', (req, res) => {
     req.body.password,
     req.body.preferences
   ];
+  searchPrefs = {
+    maxrating: defaultSearchPrefs.maxrating,
+    minratings: defaultSearchPrefs.minratings,
+    mindate: defaultSearchPrefs.mindate
+  };
   client.query(SQL, values)
-    .then(() => res.sendStatus(204))
+    .then(() => {
+      console.log(req.body.username,'created. searchPrefs set to default');
+      res.sendStatus(201);
+    })
+    .catch(console.error);
+});
+
+app.delete('/users/remove/:username', (req, res) => {
+  let SQL = `DELETE FROM users WHERE username = $1;`;
+  let values = [req.params.username];
+  client.query(SQL, values)
+    .then(() => res.sendStatus(200))
     .catch(console.error);
 });
 
