@@ -165,9 +165,11 @@ app.get('/credits/:movieid', (req, res) => {
     .query({
       api_key: process.env.TMDB_TOKEN,
       language: 'en-US'
-    }).then(response => {
+    })
+    .then(response => {
       res.send(response.body);
-    }).catch(console.error);
+    })
+    .catch(console.error);
 });
 
 app.get('/login/:username', (req,res) => {
@@ -188,7 +190,7 @@ app.get('/login/:username', (req,res) => {
     .catch(console.error);
 });
 
-app.get('/logout', (req, res) => {
+app.get('/logout', () => {
   searchPrefs = {
     maxrating: defaultSearchPrefs.maxrating,
     minratings: defaultSearchPrefs.minratings,
@@ -211,7 +213,7 @@ app.put('/users/update', (req, res) => {
     mindate: tempPrefs.mindate
   };
   client.query(SQL, values)
-    .then((result) => {
+    .then(() => {
       console.log(req.body.username,'updated. preferences set.');
       res.sendStatus(202);
     })
