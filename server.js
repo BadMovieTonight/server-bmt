@@ -172,6 +172,18 @@ app.get('/credits/:movieid', (req, res) => {
     .catch(console.error);
 });
 
+app.get('/movie/:movieid/videos', (req, res) => {
+  superagent.get(`${TMDB_API_URL}/movie/${req.params.movieid}/videos`)
+    .query({
+      api_key: process.env.TMDB_TOKEN,
+      language: 'en-US'
+    })
+    .then(response => {
+      res.send(response.body.results)
+    })
+    .catch(console.error);
+});
+
 app.get('/login/:username', (req,res) => {
   let SQL = 'SELECT username, password, preferences FROM users WHERE username = $1;';
   let values = [req.params.username];
