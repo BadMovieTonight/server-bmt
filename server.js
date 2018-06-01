@@ -8,8 +8,8 @@ const superagent = require('superagent');
 const TMDB_API_URL = 'https://api.themoviedb.org/3';
 const app = express();
 const PORT = process.env.PORT || 3000;
-// const constring = 'postgres://localhost:5432/badmovietonight'
-const client = new pg.Client(process.env.DATABASE_URL);
+const constring = 'postgres://localhost:5432/badmovietonight';
+const client = new pg.Client(constring);
 
 const defaultSearchPrefs = {
   maxrating: 4,
@@ -107,38 +107,6 @@ app.get('/bmt/person/:id', (req, res) => {
     });
 });
 
-app.get('/bmt/search', (req, res) => {
-  superagent.get(`${TMDB_API_URL}/search/multi`)
-    .query({
-      api_key: process.env.TMDB_TOKEN,
-      language: 'en-US',
-      query: req.query.searchFor,
-      page: req.query.page,
-      sort_by: 'vote_average.asc',
-      adult: false
-    })
-    .then(response => {
-      let responseType = response.body.results[0].media_type;
-      if (responseType !== 'person') {
-        res.send(response.body);
-      } else { // response 0 is person so that's the likely target of the search
-        let personId = response.body.results[0].id;
-        superagent.get(`${TMDB_API_URL}/person/${personId}`)
-          .query({
-            api_key: process.env.TMDB_TOKEN,
-            language: 'en-US',
-          })
-          .then(response => {
-            response.body.media_type = 'person'; // fake it into a person
-            res.send({results: [response.body]});
-          });
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
 app.get('/movies/:actorid', (req, res) => {
   superagent.get(`${TMDB_API_URL}/discover/movie`)
     .query({
@@ -179,7 +147,7 @@ app.get('/movie/:movieid/videos', (req, res) => {
       language: 'en-US'
     })
     .then(response => {
-      res.send(response.body.results)
+      res.send(response.body.results);
     })
     .catch(console.error);
 });
