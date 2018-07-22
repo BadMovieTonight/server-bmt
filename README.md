@@ -11,7 +11,7 @@
 **Languages Used**: JavaScript, HTML, CSS, SQL  
 **Libraries Used**: JQuery, Handlebars  
 **Frameworks Used**: Express  
-**APIs Used**: 
+**APIs Used**: The Movie Database (tMDB)
 
 CSS is organized using SMACSS guidelines.  
 Written with Visual Studio Code.  
