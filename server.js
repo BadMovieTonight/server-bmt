@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const pg = require('pg');
 const superagent = require('superagent');
-require('dotenv').config();
+require('dotenv').config(); // required to get TMDB_TOKEN
 
 const TMDB_API_URL = 'https://api.themoviedb.org/3';
 const app = express();
