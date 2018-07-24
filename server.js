@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const pg = require('pg');
 const superagent = require('superagent');
+require('dotenv').config();
 
 const TMDB_API_URL = 'https://api.themoviedb.org/3';
 const app = express();
@@ -28,7 +29,7 @@ client.connect();
 client.on('error', err => console.log(err));
 
 app.use(cors());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('/'));
 
